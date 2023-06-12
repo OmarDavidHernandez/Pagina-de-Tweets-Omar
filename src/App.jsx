@@ -27,11 +27,22 @@ const CREATE_TWEET = gql`
   }
 `;
 
+const UPDATE_TWEET = gql`
+  mutation UpdateTweet($id: ID!, $liked: Boolean!) {
+    updateTweet(id: $id, liked: $liked) {
+      id
+      text
+      liked
+    }
+  }
+`;
+
 const Tweets = () => {
   const { loading, error, data } = useQuery(GET_TWEETS);
   const [createTweet] = useMutation(CREATE_TWEET, {
     refetchQueries: [{ query: GET_TWEETS }],
   });
+  const [updateTweet] = useMutation(UPDATE_TWEET);
 
   const [newTweetText, setNewTweetText] = useState('');
 
@@ -40,6 +51,10 @@ const Tweets = () => {
     if (!newTweetText.trim()) return;
     await createTweet({ variables: { text: newTweetText } });
     setNewTweetText('');
+  };
+  
+  const handleLike = async (id, liked) => {
+    await updateTweet({ variables: { id, liked: !liked } });
   };
 
   if (loading) return <p>Loading...</p>;
