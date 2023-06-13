@@ -37,12 +37,25 @@ const UPDATE_TWEET = gql`
   }
 `;
 
+const DELETE_TWEET = gql`
+  mutation DeleteTweet($id: ID!) {
+    deleteTweet(id: $id) {
+      id
+      text
+      liked
+    }
+  }
+`;
+
 const Tweets = () => {
   const { loading, error, data } = useQuery(GET_TWEETS);
   const [createTweet] = useMutation(CREATE_TWEET, {
     refetchQueries: [{ query: GET_TWEETS }],
   });
   const [updateTweet] = useMutation(UPDATE_TWEET);
+  const [deleteTweet] = useMutation(DELETE_TWEET, {
+    refetchQueries: [{ query: GET_TWEETS }],
+  });
 
   const [newTweetText, setNewTweetText] = useState('');
 
@@ -55,6 +68,10 @@ const Tweets = () => {
   
   const handleLike = async (id, liked) => {
     await updateTweet({ variables: { id, liked: !liked } });
+  };
+
+  const handleDelete = async (id) => {
+    await deleteTweet({ variables: { id } });
   };
 
   if (loading) return <p>Loading...</p>;
